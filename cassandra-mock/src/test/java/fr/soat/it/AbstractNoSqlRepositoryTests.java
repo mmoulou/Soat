@@ -5,5 +5,7 @@ package fr.soat.it;
  *
  */
 public abstract class AbstractNoSqlRepositoryTests {
+	
+	
 
 }

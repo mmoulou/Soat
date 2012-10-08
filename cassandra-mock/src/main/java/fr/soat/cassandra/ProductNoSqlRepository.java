@@ -123,7 +123,6 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	}
 	
 	public void deleteByRef(String ref) {
-		
 		logger.info("Deleting product with ref= " + ref);
 		columnFamilyTemplate.deleteRow(ref);
 	}
@@ -131,11 +130,11 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	public void deleteByRefCQL(String ref) {
 
 		logger.info("Deleting product with ref= " + ref + ", using CQL query");
+		
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
 		String query = String.format("Delete from %s where key = '%s' ", COLUMN_FAMILLY_NAME, ref);
 		cqlQuery.setQuery(query);
 		cqlQuery.execute();
-		
 	}
 
 	/**
@@ -149,12 +148,11 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		updater.setString("NAME", product.getName());
 		updater.setInteger("QUANTITY", product.getQuantity());
 		updater.setDouble("UNIT_PRICE", product.getUnitPrice());
-		
 		try {
 			columnFamilyTemplate.update(updater);
 		} catch (HectorException e) {
 			e.printStackTrace();
-		    throw new RuntimeException("unable to update product with key: " + product.getRef(), e);
+		    throw new RuntimeException("Unable to update product with key: " + product.getRef(), e);
 		}
 	}
 	
@@ -164,6 +162,8 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
 		String nonFormatedQuery = "update %s set 'NAME' = '%s', 'QUANTITY' = %s, UNIT_PRICE = %s WHERE KEY = '%s'";
+
+		// FIXME: use serializers ?????
 		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), product.getQuantity(), product.getUnitPrice(), product.getRef());
 		cqlQuery.setQuery(query);
 	    cqlQuery.execute();
@@ -190,6 +190,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 			}
 		}
 		
+		logger.info("initializing  new product: [REF=' " + ref +"', NAME=' " + name + "', QUANTITY=" + quantity + ", UNIT_PRICE="  + unitPrice);
 		return new Product(ref,	name, quantity, unitPrice);
 	}
 	
