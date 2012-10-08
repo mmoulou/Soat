@@ -96,10 +96,8 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		// use 'checkNotNull' (google.guava) to avoid null test with 'if else' clause
 		CqlRows<String, String, byte[]> cqlRows = checkNotNull(queryResult.get(), "empty result");
 		Row<String, String, byte[]> row = checkNotNull(cqlRows.getByKey(ref), "product with ref:" + ref + "not found");
-		ColumnSlice<String, byte[]> columnSlice = checkNotNull(row.getColumnSlice(), "unexpected exception: ");
-		List<HColumn<String, byte[]>> columns = checkNotNull(columnSlice.getColumns(), "unexpected Exception");
 		
-		return createProduct(ref, columns);
+		return createProduct(ref, row.getColumnSlice());
 	}
 	
 	public Product getByRef(String ref){
@@ -117,9 +115,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 
 		// Remember: rowCount = 1
 		Row<String, String, byte[]> row = orderedRows.peekLast();
-		List<HColumn<String, byte[]>> columns = row.getColumnSlice().getColumns();
-		
-		return createProduct(ref, columns);
+		return createProduct(ref, row.getColumnSlice());
 	}
 	
 	public void deleteByRef(String ref) {
@@ -175,20 +171,13 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	 * @return
 	 */
 	private Product createProduct(String ref,
-			List<HColumn<String, byte[]>> columns) {
-		String name = null;
-		int quantity = 0;
-		double unitPrice = 0.0;
+			ColumnSlice<String, byte[]> columnSlice) {
 		
-		for(HColumn<String, byte[]> column : columns) {
-			if("NAME".equals(column.getName())){
-				name = new String(column.getValue());
-			} else if("QUANTITY".equals(column.getName())){
-				quantity = ByteBuffer.wrap(column.getValue()).getInt();
-			} else if("UNIT_PRICE".equals(column.getName())){
-				unitPrice = ByteBuffer.wrap(column.getValue()).getDouble();
-			}
-		}
+		checkArgument((columnSlice!= null && !columnSlice.getColumns().isEmpty()), "columnsSlice must not be null or empty");
+		
+		String name = new String(columnSlice.getColumnByName("NAME").getValue());
+		int quantity = ByteBuffer.wrap(columnSlice.getColumnByName("QUANTITY").getValue()).getInt();
+		double unitPrice = ByteBuffer.wrap(columnSlice.getColumnByName("UNIT_PRICE").getValue()).getDouble();
 		
 		logger.info("initializing  new product: [REF=' " + ref +"', NAME=' " + name + "', QUANTITY=" + quantity + ", UNIT_PRICE="  + unitPrice);
 		return new Product(ref,	name, quantity, unitPrice);
