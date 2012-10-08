@@ -27,7 +27,6 @@ import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.*;
 
 import fr.soat.bean.Product;
@@ -85,7 +84,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		mutator.execute();
 	}
 	
-	public Product cqlgetByRef(String ref) {
+	public Product getByRefCQL(String ref) {
 		
 		logger.info("Getting product its ref where ref= " + ref + ", using CQL query.");
 		
@@ -129,6 +128,16 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		columnFamilyTemplate.deleteRow(ref);
 	}
 	
+	public void deleteByRefCQL(String ref) {
+
+		logger.info("Deleting product with ref= " + ref + ", using CQL query");
+		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
+		String query = String.format("Delete from %s where key = '%s' ", COLUMN_FAMILLY_NAME, ref);
+		cqlQuery.setQuery(query);
+		cqlQuery.execute();
+		
+	}
+
 	/**
 	 * @param product
 	 */
@@ -147,6 +156,17 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 			e.printStackTrace();
 		    throw new RuntimeException("unable to update product with key: " + product.getRef(), e);
 		}
+	}
+	
+	public void updateCQL(Product product) {
+		
+		logger.info("updating row with ref: " + product.getRef() + ", using CQL query");
+		
+		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
+		String nonFormatedQuery = "update %s set 'NAME' = '%s', 'QUANTITY' = %s, UNIT_PRICE = %s WHERE KEY = '%s'";
+		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), product.getQuantity(), product.getUnitPrice(), product.getRef());
+		cqlQuery.setQuery(query);
+	    cqlQuery.execute();
 	}
 
 	/**
