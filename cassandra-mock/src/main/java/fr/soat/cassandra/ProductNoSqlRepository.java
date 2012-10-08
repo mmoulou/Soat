@@ -1,7 +1,9 @@
 package fr.soat.cassandra;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import me.prettyprint.cassandra.model.CqlQuery;
 import me.prettyprint.cassandra.model.CqlRows;
@@ -26,8 +28,6 @@ import me.prettyprint.hector.api.query.RangeSlicesQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.*;
 
 import fr.soat.bean.Product;
 
@@ -68,6 +68,8 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	 */
 	public void insert(Product product){
 		
+		checkNotNull(product.getRef(), "product.ref must not be null.");
+		
 		logger.info("insert new product: " + product.toString());
 		Mutator<String> mutator = HFactory.createMutator(getKeyspace(), StringSerializer.get());
 		
@@ -86,6 +88,8 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	
 	public Product getByRefCQL(String ref) {
 		
+		checkNotNull(ref, "ref must not be null.");
+		
 		logger.info("Getting product its ref where ref= " + ref + ", using CQL query.");
 		
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
@@ -102,6 +106,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	
 	public Product getByRef(String ref){
 		
+		checkNotNull(ref, "ref must not be null.");
 		logger.info("Getting product its ref where ref= " + ref);
 		
 		// we use bytesArraySerializer because we have multiple column with different datatypes
@@ -113,18 +118,19 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		QueryResult<OrderedRows<String, String, byte[]>> result = rangeSlicesQuery.execute();
 		OrderedRows<String, String, byte[]> orderedRows = result.get();
 
-		// Remember: rowCount = 1
 		Row<String, String, byte[]> row = orderedRows.peekLast();
 		return createProduct(ref, row.getColumnSlice());
 	}
 	
 	public void deleteByRef(String ref) {
+		checkNotNull(ref, "ref must not be null.");
 		logger.info("Deleting product with ref= " + ref);
 		columnFamilyTemplate.deleteRow(ref);
 	}
 	
 	public void deleteByRefCQL(String ref) {
-
+		
+		checkNotNull(ref, "ref must not be null.");
 		logger.info("Deleting product with ref= " + ref + ", using CQL query");
 		
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
@@ -138,6 +144,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	 */
 	public void update(Product product) {
 		
+		checkNotNull(product.getRef(), "product.ref must not be null.");
 		logger.info("updating row with ref: " + product.getRef());
 		
 		ColumnFamilyUpdater<String, String> updater = columnFamilyTemplate.createUpdater(product.getRef());
@@ -154,6 +161,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	
 	public void updateCQL(Product product) {
 		
+		checkNotNull(product.getRef(), "product.ref must not be null.");
 		logger.info("updating row with ref: " + product.getRef() + ", using CQL query");
 		
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
@@ -173,6 +181,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	private Product createProduct(String ref,
 			ColumnSlice<String, byte[]> columnSlice) {
 		
+		checkNotNull(ref, "ref must not be null.");
 		checkArgument((columnSlice!= null && !columnSlice.getColumns().isEmpty()), "columnsSlice must not be null or empty");
 		
 		String name = new String(columnSlice.getColumnByName("NAME").getValue());
