@@ -56,7 +56,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	 * @param ref
 	 * @return
 	 */
-	// TODO : refactor move method to abstract class
+	// TODO refactor: move method to abstract class
 	public String getSingleColumnValueByKey(String key, String columnName){
 
 		// TODO: use guava 
