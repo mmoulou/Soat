@@ -3,6 +3,8 @@ package fr.soat.cassandra;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import me.prettyprint.cassandra.model.CqlQuery;
+import me.prettyprint.cassandra.model.CqlRows;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
 import me.prettyprint.cassandra.serializers.DoubleSerializer;
 import me.prettyprint.cassandra.serializers.IntegerSerializer;
@@ -12,6 +14,7 @@ import me.prettyprint.cassandra.service.template.ColumnFamilyUpdater;
 import me.prettyprint.cassandra.service.template.ThriftColumnFamilyTemplate;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
+import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
@@ -23,6 +26,9 @@ import me.prettyprint.hector.api.query.RangeSlicesQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.*;
 
 import fr.soat.bean.Product;
 
@@ -77,6 +83,24 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 				.addInsertion(product.getRef(), COLUMN_FAMILLY_NAME, unitPriceColumn);
 
 		mutator.execute();
+	}
+	
+	public Product cqlgetByRef(String ref) {
+		
+		logger.info("Getting product its ref where ref= " + ref + ", using CQL query.");
+		
+		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
+		String query = String.format("Select * from %s where key = '%s' ", COLUMN_FAMILLY_NAME, ref);
+		cqlQuery.setQuery(query);
+		QueryResult<CqlRows<String, String, byte[]>> queryResult = cqlQuery.execute();
+		
+		// use 'checkNotNull' (google.guava) to avoid null test with 'if else' clause
+		CqlRows<String, String, byte[]> cqlRows = checkNotNull(queryResult.get(), "empty result");
+		Row<String, String, byte[]> row = checkNotNull(cqlRows.getByKey(ref), "product with ref:" + ref + "not found");
+		ColumnSlice<String, byte[]> columnSlice = checkNotNull(row.getColumnSlice(), "unexpected exception: ");
+		List<HColumn<String, byte[]>> columns = checkNotNull(columnSlice.getColumns(), "unexpected Exception");
+		
+		return createProduct(ref, columns);
 	}
 	
 	public Product getByRef(String ref){

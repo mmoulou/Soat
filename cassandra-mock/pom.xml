@@ -5,10 +5,6 @@
 	<artifactId>cassandra-mock</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<properties>
-		<cassandra-version>1.0.7</cassandra-version>
-	</properties>
-
 	<dependencies>
 
 		<!-- cassandra dependencies -->
