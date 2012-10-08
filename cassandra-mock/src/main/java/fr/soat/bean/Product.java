@@ -1,5 +1,7 @@
 package fr.soat.bean;
 
+import com.google.common.base.Objects;
+
 /**
  * @author Mouhcine MOULOU
  *
@@ -59,5 +61,15 @@ public class Product {
 	 */
 	public Product() {
 		super();
+	}
+	
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this).
+				add("ref: ", ref).
+				add("name: ", name).
+				add("quantity: ", quantity).
+				add("unitPrice: ", unitPrice).
+				toString();
 	}
 }
