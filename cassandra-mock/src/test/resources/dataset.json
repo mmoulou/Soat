@@ -1,0 +1,14 @@
+{
+    "name":"StockKS",
+    "replicationFactor":1,
+    "strategy":"org.apache.cassandra.locator.SimpleStrategy",
+    "columnFamilies":[
+        {
+            "name":"PRODUCT"
+	        "type" : "STANDARD",
+	        "keyType" : "UTF8Type",
+	        "comparatorType" : "UTF8Type",
+	        "defaultColumnValueType" : "UTF8Type",
+        }
+    ]
+}
