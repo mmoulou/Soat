@@ -17,7 +17,7 @@ public class ProductNoSqlRepositoryTestIt extends AbstractNoSqlRepositoryIntegra
 	public void insertProductShouldBeOk() {
 		
 		// G
-		ProductNoSqlRepository productNoSqlRepository = new ProductNoSqlRepository("TestCluster", "localhost:9160", "StockKS");
+		ProductNoSqlRepository productNoSqlRepository = new ProductNoSqlRepository("Test Cluster", "localhost:9160", "StockKS");
 		Product product = new Product("001", "keyboard", 4, 50.0);
 		
 		// W

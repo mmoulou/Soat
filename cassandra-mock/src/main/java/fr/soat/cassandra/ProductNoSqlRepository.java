@@ -42,7 +42,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	/**
 	 * Column familly Name 
 	 */
-	private static final String COLUMN_FAMILLY_NAME = ""; // FIXME
+	private static final String COLUMN_FAMILLY_NAME = "PRODUCT"; // FIXME
 	
 	/**
 	 * avoid initialize Serializers on local methods. declare them just once as static fields (good practice) 

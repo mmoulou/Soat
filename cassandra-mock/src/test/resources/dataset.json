@@ -4,11 +4,24 @@
     "strategy":"org.apache.cassandra.locator.SimpleStrategy",
     "columnFamilies":[
         {
-            "name":"PRODUCT"
-	        "type" : "STANDARD",
-	        "keyType" : "UTF8Type",
-	        "comparatorType" : "UTF8Type",
-	        "defaultColumnValueType" : "UTF8Type",
-        }
+            "name": "PRODUCT",
+            "keyType": "UTF8Type",
+            "comparatorType": "UTF8Type",
+            "columnsMetadata": [
+                {
+                    "name": "NAME",
+                    "validationClass": "UTF8Type"
+                },
+                {
+                    "name": "QUANTITY",
+                    "validationClass": "IntegerType"
+                },
+                {
+                    "name": "UNIT_PRICE",
+                    "validationClass": "BytesType"
+                }
+            ]
+        } 
+        
     ]
 }
