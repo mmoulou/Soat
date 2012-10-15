@@ -24,7 +24,7 @@ import com.netflix.astyanax.thrift.ThriftFamilyFactory;
  * @author Mouhcine MOULOU
  *
  */
-public abstract class AbstractNoSqlRepositoryIntegrationTests {
+public abstract class AbstractNoSqlRepositoryIntegrationIT {
 	
 	@BeforeClass 
     public static void startCassandra() throws TTransportException, IOException, ConfigurationException {  

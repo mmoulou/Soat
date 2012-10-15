@@ -42,7 +42,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	/**
 	 * Column familly Name 
 	 */
-	private static final String COLUMN_FAMILLY_NAME = "PRODUCT"; // FIXME
+	private static final String COLUMN_FAMILLY_NAME = "PRODUCT";
 	
 	/**
 	 * avoid initialize Serializers on local methods. declare them just once as static fields (good practice) 
@@ -61,6 +61,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	
 	public ProductNoSqlRepository(String clusterName, String host, String keyspaceName) {
 		super(clusterName, host, keyspaceName);
+		columnFamilyTemplate = new ThriftColumnFamilyTemplate<String, String>(getKeyspace(), COLUMN_FAMILLY_NAME, stringSerializer, stringSerializer);
 	}
 	
 	/**
@@ -71,7 +72,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		checkNotNull(product.getRef(), "product.ref must not be null.");
 		
 		logger.info("insert new product: " + product.toString());
-		Mutator<String> mutator = HFactory.createMutator(getKeyspace(), StringSerializer.get());
+		Mutator<String> mutator = HFactory.createMutator(getKeyspace(), stringSerializer);
 		
 		// Same As : HColumn<String, Integer> nameColumn = HFactory.createColumn("NAME", product.getName(), stringSerializer, stringSerializer);
 		HColumn<String, String> nameColumn = HFactory.createStringColumn("NAME", product.getName());
@@ -113,12 +114,16 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		RangeSlicesQuery<String, String, byte[]> rangeSlicesQuery = HFactory.createRangeSlicesQuery(getKeyspace(), stringSerializer,stringSerializer, bytesArraySerializer);
 		rangeSlicesQuery.setColumnFamily(COLUMN_FAMILLY_NAME);
 		rangeSlicesQuery.setKeys(ref, "");
+		
+		rangeSlicesQuery.setRange("", "", false, Integer.MAX_VALUE);
 		rangeSlicesQuery.setRowCount(1);
 		
 		QueryResult<OrderedRows<String, String, byte[]>> result = rangeSlicesQuery.execute();
 		OrderedRows<String, String, byte[]> orderedRows = result.get();
 
 		Row<String, String, byte[]> row = orderedRows.peekLast();
+		if(row.getColumnSlice() == null || row.getColumnSlice().getColumns().isEmpty()) 
+			return null;
 		return createProduct(ref, row.getColumnSlice());
 	}
 	
@@ -168,7 +173,7 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		String nonFormatedQuery = "update %s set 'NAME' = '%s', 'QUANTITY' = %s, UNIT_PRICE = %s WHERE KEY = '%s'";
 
 		// FIXME: use serializers ?????
-		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), product.getQuantity(), product.getUnitPrice(), product.getRef());
+		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), integerSerializer.toByteBuffer(product.getQuantity()).asIntBuffer(), doubleSerializer.toByteBuffer(product.getUnitPrice()), product.getRef());
 		cqlQuery.setQuery(query);
 	    cqlQuery.execute();
 	}

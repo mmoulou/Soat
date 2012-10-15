@@ -3,7 +3,6 @@
  */
 package fr.soat.cassandra;
 
-import me.prettyprint.cassandra.service.template.ColumnFamilyTemplate;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
