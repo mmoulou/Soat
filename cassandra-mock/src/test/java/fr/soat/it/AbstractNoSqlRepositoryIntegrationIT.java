@@ -54,10 +54,6 @@ public abstract class AbstractNoSqlRepositoryIntegrationIT {
 				.buildKeyspace(ThriftFamilyFactory.getInstance());
   
         context.start();
-        
-        // FIXME
-        Keyspace keyspace = context.getEntity();  
-//        cassandraAccessor accessor = new CassandraAccessor(new ObjectMapper(), keyspace);  
     }  
   
     @After

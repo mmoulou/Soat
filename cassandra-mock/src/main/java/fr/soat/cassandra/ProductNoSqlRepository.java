@@ -56,7 +56,9 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 	
 	public ProductNoSqlRepository(Cluster cluster, Keyspace keyspace) {
 		super(cluster, keyspace);
-		columnFamilyTemplate = new ThriftColumnFamilyTemplate<String, String>(keyspace, COLUMN_FAMILLY_NAME, stringSerializer, stringSerializer);
+		columnFamilyTemplate = new ThriftColumnFamilyTemplate<String, String>(
+				keyspace, COLUMN_FAMILLY_NAME, stringSerializer,
+				stringSerializer);
 	}
 	
 	public ProductNoSqlRepository(String clusterName, String host, String keyspaceName) {
@@ -172,10 +174,11 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
 		String nonFormatedQuery = "update %s set 'NAME' = '%s', 'QUANTITY' = %s, UNIT_PRICE = %s WHERE KEY = '%s'";
 
-		// FIXME: use serializers ?????
+		// FIXME: use serializers ????? 
 		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), integerSerializer.toByteBuffer(product.getQuantity()).asIntBuffer(), doubleSerializer.toByteBuffer(product.getUnitPrice()), product.getRef());
 		cqlQuery.setQuery(query);
 	    cqlQuery.execute();
+	    
 	}
 
 	/**
