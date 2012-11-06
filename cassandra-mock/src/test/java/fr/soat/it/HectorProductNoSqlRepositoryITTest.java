@@ -2,6 +2,7 @@ package fr.soat.it;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import fr.soat.bean.Product;
@@ -108,6 +109,7 @@ public class HectorProductNoSqlRepositoryITTest extends AbstractNoSqlRepositoryI
 	}
 	
 	@Test
+	@Ignore
 	public void updateCQLSouldBeOk() {
 		
 		// G
