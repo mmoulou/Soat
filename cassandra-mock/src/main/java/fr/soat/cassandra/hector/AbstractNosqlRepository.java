@@ -1,7 +1,4 @@
-/**
- * 
- */
-package fr.soat.cassandra;
+package fr.soat.cassandra.hector;
 
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
@@ -41,7 +38,6 @@ public abstract class AbstractNosqlRepository {
 		if(queryResult != null) {
 			result = queryResult.get().getValue();
 		}
-		
 		return result;
 	}
 
@@ -77,8 +73,4 @@ public abstract class AbstractNosqlRepository {
 	public void setKeyspace(Keyspace keyspace) {
 		this.keyspace = keyspace;
 	}
-	
-	
-	
-
 }

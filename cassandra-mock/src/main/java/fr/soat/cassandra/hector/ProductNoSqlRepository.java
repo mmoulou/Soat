@@ -1,4 +1,4 @@
-package fr.soat.cassandra;
+package fr.soat.cassandra.hector;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

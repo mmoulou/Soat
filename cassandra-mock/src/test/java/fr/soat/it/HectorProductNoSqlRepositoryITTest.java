@@ -1,16 +1,17 @@
 package fr.soat.it;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
-import junit.framework.Assert;
 import fr.soat.bean.Product;
-import fr.soat.cassandra.ProductNoSqlRepository;
+import fr.soat.cassandra.hector.ProductNoSqlRepository;
 
 /**
  * @author Mouhcine MOULOU
  *
  */
-public class ProductNoSqlRepositoryITTest extends AbstractNoSqlRepositoryIntegrationIT{
+public class HectorProductNoSqlRepositoryITTest extends AbstractNoSqlRepositoryIntegrationIT{
 	
 	private static final ProductNoSqlRepository productNoSqlRepository = new ProductNoSqlRepository("Test Cluster", "localhost:9160", "StockKS");
 	
