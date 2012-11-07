@@ -149,9 +149,4 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 		product.setUnitPrice(columns.getColumnByName(UNIT_PRICE_COLUMN).getDoubleValue());
 		return product;
 	}
-	
-	public String describe() throws Exception{
-		return getKeyspace().describeKeyspace().toString();
-	}
-
 }
