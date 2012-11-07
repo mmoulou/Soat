@@ -165,21 +165,6 @@ public class ProductNoSqlRepository extends AbstractNosqlRepository {
 		    throw new RuntimeException("Unable to update product with key: " + product.getRef(), e);
 		}
 	}
-	
-	public void updateCQL(Product product) {
-		
-		checkNotNull(product.getRef(), "product.ref must not be null.");
-		logger.info("updating row with ref: " + product.getRef() + ", using CQL query");
-		
-		CqlQuery<String, String, byte[]> cqlQuery = new CqlQuery<String, String, byte[]>(getKeyspace(), stringSerializer, stringSerializer, bytesArraySerializer);
-		String nonFormatedQuery = "update %s set 'NAME' = '%s', 'QUANTITY' = %s, UNIT_PRICE = %s WHERE KEY = '%s'";
-
-		// FIXME: use serializers ????? 
-		String query = String.format(nonFormatedQuery, COLUMN_FAMILLY_NAME, product.getName(), integerSerializer.toByteBuffer(product.getQuantity()).asIntBuffer(), doubleSerializer.toByteBuffer(product.getUnitPrice()), product.getRef());
-		cqlQuery.setQuery(query);
-	    cqlQuery.execute();
-	    
-	}
 
 	/**
 	 * @param ref

@@ -107,22 +107,4 @@ public class HectorProductNoSqlRepositoryITTest extends AbstractNoSqlRepositoryI
 		Assert.assertNotNull(product2);
 		Assert.assertEquals(product, product2);
 	}
-	
-	@Test
-	@Ignore
-	public void updateCQLSouldBeOk() {
-		
-		// G
-		Product product = new Product("002", "Mouse", 12, 35.0);
-		productNoSqlRepository.insert(product);
-		
-		// W
-		product = new Product("002", "updated Mouse", 10, 30.0);
-		productNoSqlRepository.updateCQL(product);
-		Product product2 =  productNoSqlRepository.getByRef(product.getRef());
-		
-		// T
-		Assert.assertNotNull(product2);
-		Assert.assertEquals(product, product2);
-	}
 }
