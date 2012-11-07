@@ -1,7 +1,10 @@
 package fr.soat.it;
 
+import java.util.List;
+
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import fr.soat.bean.Product;
@@ -56,5 +59,32 @@ public class AstyanaxProductNoSqlRepositoryITTest extends AbstractNoSqlRepositor
 		// W
 		productNoSqlRepository.delete(product.getRef());
 		Product product2 = productNoSqlRepository.getByRef(product.getRef());
+	}
+	
+	/**
+	 * Waiting for response: // https://github.com/Netflix/astyanax/issues/139
+	 */
+	@Test
+	@Ignore 
+	public void getProductsSouldBeOk(){
+		
+		// G
+		Product product3 = new Product("003", "ThinkPad Laptop", 7, 2150.0);
+		Product product1 = new Product("001", "Mouse", 12, 35.0);
+		Product product2 = new Product("002", "Scala Book", 2, 54.0);
+		Product product4 = new Product("004", "IntelliJ IDEA License Key", 2, 160.0);
+		productNoSqlRepository.insert(product1);
+		productNoSqlRepository.insert(product2);
+		productNoSqlRepository.insert(product3);
+		productNoSqlRepository.insert(product4);
+		
+		// W
+		List<Product> products = productNoSqlRepository.getProducts("002", 2);
+		
+		// T 
+		Assert.assertNotNull(products);
+		Assert.assertEquals(2, products.size());
+		Assert.assertEquals("002", products.get(0).getRef());
+		Assert.assertEquals("003", products.get(0).getRef());
 	}
 }

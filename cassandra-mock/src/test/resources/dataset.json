@@ -10,7 +10,8 @@
             "columnsMetadata": [
                 {
                     "name": "NAME",
-                    "validationClass": "UTF8Type"
+                    "validationClass": "UTF8Type",
+                    "indexType" : "KEYS"
                 },
                 {
                     "name": "QUANTITY",

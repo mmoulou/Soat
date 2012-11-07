@@ -18,6 +18,7 @@ import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Row;
 import com.netflix.astyanax.model.Rows;
 import com.netflix.astyanax.query.IndexQuery;
+import com.netflix.astyanax.recipes.uniqueness.MultiRowUniquenessConstraint;
 import com.netflix.astyanax.serializers.StringSerializer;
 
 import fr.soat.bean.Product;
@@ -34,7 +35,7 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 	private static final String NAME_COLUMN = "NAME";
 	private static final String QUANTITY_COLUMN = "QUANTITY";
 	private static final String UNIT_PRICE_COLUMN = "UNIT_PRICE";
-	private static final ColumnFamily<String, String> ProductColumnFamily = getColumnFamily();
+	private static final ColumnFamily<String, String> productColumnFamily = getColumnFamily();
 	
 	public ProductNoSqlRepository(String clusterName, String host, int port,
 			String keyspaceName) {
@@ -55,7 +56,7 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 		logger.info("insert new product: " + product.toString());
 		try {
 			MutationBatch mutationBatch = getKeyspace().prepareMutationBatch();
-			mutationBatch.withRow(ProductColumnFamily, product.getRef())
+			mutationBatch.withRow(productColumnFamily, product.getRef())
 					.putColumn(NAME_COLUMN, product.getName())
 					.putColumn(QUANTITY_COLUMN, product.getQuantity())
 					.putColumn(UNIT_PRICE_COLUMN, product.getUnitPrice());
@@ -65,7 +66,6 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 			logger.error("Unexpected Exception while trying to insert new Product: " + e.getMessage());
 		}
 	}
-	
 
 	/**
 	 * @param ref
@@ -79,7 +79,7 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 		Product product = null;
 		try {
 			OperationResult<ColumnList<String>> result;
-			result = getKeyspace().prepareQuery(ProductColumnFamily)
+			result = getKeyspace().prepareQuery(productColumnFamily)
 			    .getKey(ref)
 			    .execute();
 			ColumnList<String> columns = result.getResult();
@@ -101,7 +101,7 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 		
 		try {
 			MutationBatch m = getKeyspace().prepareMutationBatch();
-			m.withRow(ProductColumnFamily, ref).delete();
+			m.withRow(productColumnFamily, ref).delete();
 		    m.execute();
 		} catch (ConnectionException e) {
 		      logger.error("Unexpected Exception while trying to delete row with product ref: " + ref + ". -" + e);
@@ -117,19 +117,20 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 
 		List<Product> products = Lists.newArrayList();
 		try {
+			// Name column must be indexed
 			IndexQuery<String, String> query = getKeyspace()
-			   .prepareQuery(ProductColumnFamily).searchWithIndex().setStartKey(StartFrom)
-			   .setRowLimit(maxResut).autoPaginateRows(true);
+			   .prepareQuery(productColumnFamily).searchWithIndex().setStartKey(StartFrom)
+			   .setRowLimit(maxResut).addExpression().whereColumn(NAME_COLUMN).greaterThanEquals().value("");
 			
 			Rows<String, String> result = query.execute().getResult();
 			for (Iterator<Row<String, String>> iterator = result.iterator(); iterator.hasNext();) {
 				Row<String, String> row = iterator.next();
 				products.add(createProduct(row.getKey(), row.getColumns()));
-				
 			}
 			
 		} catch (Exception e) {
 			logger.error("" + e);
+			e.printStackTrace();
 		}
 		
 		return products;
@@ -147,6 +148,10 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 		product.setQuantity(columns.getColumnByName(QUANTITY_COLUMN).getIntegerValue());
 		product.setUnitPrice(columns.getColumnByName(UNIT_PRICE_COLUMN).getDoubleValue());
 		return product;
+	}
+	
+	public String describe() throws Exception{
+		return getKeyspace().describeKeyspace().toString();
 	}
 
 }
