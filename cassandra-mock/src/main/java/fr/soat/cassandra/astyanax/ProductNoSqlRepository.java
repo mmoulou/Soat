@@ -6,10 +6,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Iterator;
 import java.util.List;
 
+import me.prettyprint.hector.api.factory.HFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.netflix.astyanax.ExceptionCallback;
 import com.netflix.astyanax.MutationBatch;
 import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
@@ -18,8 +21,8 @@ import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Row;
 import com.netflix.astyanax.model.Rows;
 import com.netflix.astyanax.query.IndexQuery;
-import com.netflix.astyanax.recipes.uniqueness.MultiRowUniquenessConstraint;
 import com.netflix.astyanax.serializers.StringSerializer;
+import com.netflix.astyanax.util.RangeBuilder;
 
 import fr.soat.bean.Product;
 
@@ -111,16 +114,20 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 	/**
 	 * @param StartFrom
 	 * @param maxResut
+	 * @param quantity 
 	 * @return
+	 * 
+	 * Cassandra secondary index search requires at least one equality operation to run
+	 * 	: https://github.com/Netflix/astyanax/issues/139
 	 */
-	public List<Product> getProducts(String StartFrom, int maxResut){
+	public List<Product> getProducts(String StartFrom, int maxResut, int quantity){
 
 		List<Product> products = Lists.newArrayList();
 		try {
-			// Name column must be indexed
+			// quantity column must be indexed
 			IndexQuery<String, String> query = getKeyspace()
 			   .prepareQuery(productColumnFamily).searchWithIndex().setStartKey(StartFrom)
-			   .setRowLimit(maxResut).addExpression().whereColumn(NAME_COLUMN).greaterThanEquals().value("");
+			   .setRowLimit(maxResut).addExpression().whereColumn(QUANTITY_COLUMN).equals().value(quantity);
 			
 			Rows<String, String> result = query.execute().getResult();
 			for (Iterator<Row<String, String>> iterator = result.iterator(); iterator.hasNext();) {
@@ -128,14 +135,13 @@ public class ProductNoSqlRepository extends AbstractNoSqlRepository{
 				products.add(createProduct(row.getKey(), row.getColumns()));
 			}
 			
-		} catch (Exception e) {
-			logger.error("" + e);
+		} catch (ConnectionException e) {
 			e.printStackTrace();
 		}
 		
 		return products;
 	}
-
+	
 	/**
 	 * @param ref
 	 * @param columns

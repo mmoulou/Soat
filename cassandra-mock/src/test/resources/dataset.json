@@ -15,7 +15,8 @@
                 },
                 {
                     "name": "QUANTITY",
-                    "validationClass": "IntegerType"
+                    "validationClass": "IntegerType",
+                    "indexType" : "KEYS"
                 },
                 {
                     "name": "UNIT_PRICE",
