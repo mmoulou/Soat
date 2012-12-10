@@ -1,4 +1,4 @@
-this is a cassandra implementation of some libraries, For more information about Cassandra database, visit the Apache Site or the article related to this repo:
+this is a cassandra implementation of some libraries, For more information about Cassandra database, visit the Apache Site or my article in developpez.com:
 
     - http://wiki.apache.org/cassandra/GettingStarted
     - // TODO : article url
