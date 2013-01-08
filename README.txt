@@ -1,7 +1,7 @@
 this is a cassandra implementation of some libraries, For more information about Cassandra database, visit the Apache Site or my article in developpez.com:
 
     - http://wiki.apache.org/cassandra/GettingStarted
-    - // TODO : article url
+    - http://soat.developpez.com/articles/cassandra-pratique/
 
 Package Description
 
